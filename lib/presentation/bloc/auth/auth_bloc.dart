@@ -13,6 +13,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<LogoutRequested>(_onLogoutRequested);
     on<CheckAuthStatus>(_onCheckAuthStatus);
     on<CompleteOnboardingRequested>(_onCompleteOnboardingRequested);
+    on<UpdateProfilePhoto>(_onUpdateProfilePhoto);
   }
 
   Future<void> _onLoginRequested(LoginRequested event, Emitter<AuthState> emit) async {
@@ -73,6 +74,16 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     emit(state.copyWith(isLoading: true));
     try {
       final user = await _authRepository.getCurrentUser();
+      emit(state.copyWith(isLoading: false, user: user));
+    } catch (e) {
+      emit(state.copyWith(isLoading: false, error: e.toString().replaceAll('Exception: ', '')));
+    }
+  }
+
+  Future<void> _onUpdateProfilePhoto(UpdateProfilePhoto event, Emitter<AuthState> emit) async {
+    emit(state.copyWith(isLoading: true));
+    try {
+      final user = await _authRepository.uploadProfilePhoto(event.file);
       emit(state.copyWith(isLoading: false, user: user));
     } catch (e) {
       emit(state.copyWith(isLoading: false, error: e.toString().replaceAll('Exception: ', '')));

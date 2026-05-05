@@ -1,6 +1,9 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:lottie/lottie.dart';
 import 'package:sakupintar/core/theme/theme.dart';
 import 'package:sakupintar/presentation/bloc/auth/auth_bloc.dart';
@@ -21,6 +24,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
 
   // "Menabung" | "Mengatur Jajan" | "Investasi"
   String? _selectedGoal;
+  File? _profileImage;
 
   @override
   void dispose() {
@@ -47,6 +51,84 @@ class _OnboardingPageState extends State<OnboardingPage> {
         nickname: _nameController.text.trim(),
         school: _schoolController.text.trim(),
         primaryGoal: _selectedGoal!,
+      ),
+    );
+
+    // Upload profile photo if selected
+    if (_profileImage != null) {
+      context.read<AuthBloc>().add(UpdateProfilePhoto(file: _profileImage!));
+    }
+  }
+
+  Future<void> _pickProfileImage() async {
+    final picker = ImagePicker();
+    final XFile? image = await picker.pickImage(source: ImageSource.gallery);
+    if (image == null) return;
+
+    final File original = File(image.path);
+    final String targetPath = '${original.path}_profile_compressed.jpg';
+
+    final result = await FlutterImageCompress.compressAndGetFile(
+      original.path,
+      targetPath,
+      quality: 70,
+      minWidth: 600,
+      minHeight: 600,
+    );
+
+    setState(() {
+      _profileImage = result != null ? File(result.path) : original;
+    });
+  }
+
+  Widget _buildProfilePhotoPicker() {
+    return Center(
+      child: GestureDetector(
+        onTap: _pickProfileImage,
+        child: Stack(
+          children: [
+            Container(
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: AppColors.primary.withOpacity(0.3),
+                  width: 3,
+                ),
+              ),
+              child: CircleAvatar(
+                radius: 52,
+                backgroundColor: AppColors.primaryContainer,
+                backgroundImage: _profileImage != null
+                    ? FileImage(_profileImage!)
+                    : null,
+                child: _profileImage == null
+                    ? const Icon(
+                        Icons.person_rounded,
+                        size: 48,
+                        color: AppColors.primary,
+                      )
+                    : null,
+              ),
+            ),
+            Positioned(
+              bottom: 0,
+              right: 0,
+              child: Container(
+                padding: const EdgeInsets.all(AppDimensions.sm),
+                decoration: BoxDecoration(
+                  gradient: AppColors.primaryGradient,
+                  shape: BoxShape.circle,
+                  border: Border.all(color: AppColors.surface, width: 2),
+                ),
+                child: const Icon(
+                  Icons.camera_alt_rounded,
+                  color: AppColors.surface,
+                  size: 18,
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -392,6 +474,10 @@ class _OnboardingPageState extends State<OnboardingPage> {
                   ],
                 ),
                 const SizedBox(height: AppDimensions.xl),
+
+                // Profile Photo
+                _buildProfilePhotoPicker(),
+                const SizedBox(height: AppDimensions.lg),
 
                 // Inputs
                 _buildTextField(

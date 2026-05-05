@@ -13,6 +13,7 @@ _UserModel _$UserModelFromJson(Map<String, dynamic> json) => _UserModel(
   school: json['school'] as String?,
   primaryGoal: json['primaryGoal'] as String?,
   userType: json['userType'] as String?,
+  photoUrl: json['photoUrl'] as String?,
   createdAt: _timestampFromJson(json['createdAt']),
   fcmToken: json['fcmToken'] as String?,
 );
@@ -25,6 +26,7 @@ Map<String, dynamic> _$UserModelToJson(_UserModel instance) =>
       'school': instance.school,
       'primaryGoal': instance.primaryGoal,
       'userType': instance.userType,
+      'photoUrl': instance.photoUrl,
       'createdAt': _timestampToJson(instance.createdAt),
       'fcmToken': instance.fcmToken,
     };

@@ -1,12 +1,16 @@
+import 'dart:io';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import '../models/user/user_model.dart';
 
 class AuthRepository {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  final GoogleSignIn _googleSignIn = GoogleSignIn();
+  final GoogleSignIn _googleSignIn = GoogleSignIn(
+    serverClientId: '1022328862510-ns0so77otpmm9cmsn1udg6bt58gohl7m.apps.googleusercontent.com',
+  );
 
   // Login dengan Email
   Future<UserModel> loginWithEmail(String email, String password) async {
@@ -150,6 +154,49 @@ class AuthRepository {
       return UserModel.fromJson(updatedDoc.data()!);
     } catch (e) {
       throw Exception('Gagal memperbarui profil: $e');
+    }
+  }
+
+  // Update Foto Profil
+  Future<UserModel> updatePhotoUrl(String photoUrl) async {
+    try {
+      final user = _auth.currentUser;
+      if (user == null) {
+        throw Exception('Pengguna belum login.');
+      }
+
+      final docRef = _firestore.collection('users').doc(user.uid);
+      await docRef.update({'photoUrl': photoUrl});
+
+      final updatedDoc = await docRef.get();
+      return UserModel.fromJson(updatedDoc.data()!);
+    } catch (e) {
+      throw Exception('Gagal memperbarui foto profil: $e');
+    }
+  }
+
+  // Upload Foto Profil ke Firebase Storage
+  Future<UserModel> uploadProfilePhoto(File file) async {
+    try {
+      final user = _auth.currentUser;
+      if (user == null) {
+        throw Exception('Pengguna belum login.');
+      }
+
+      final ref = FirebaseStorage.instance
+          .ref()
+          .child('users')
+          .child(user.uid)
+          .child('profile.jpg');
+
+      await ref.putFile(file);
+      final url = await ref.getDownloadURL();
+
+      return await updatePhotoUrl(url);
+    } on FirebaseException catch (e) {
+      throw Exception('Gagal mengunggah foto profil: ${e.message}');
+    } catch (e) {
+      throw Exception('Terjadi kesalahan: $e');
     }
   }
 

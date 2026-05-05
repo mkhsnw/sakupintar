@@ -3,16 +3,29 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-// import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:sakupintar/core/utils/app_router.dart';
 import 'package:sakupintar/data/repositories/auth_repository.dart';
 import 'package:sakupintar/presentation/bloc/auth/auth_bloc.dart';
 import 'package:sakupintar/presentation/bloc/auth/auth_event.dart';
+import 'package:sakupintar/data/repositories/transaction_repository.dart';
+import 'package:sakupintar/presentation/bloc/transaction/transaction_bloc.dart';
+import 'package:sakupintar/data/repositories/category_repository.dart';
+import 'package:sakupintar/presentation/bloc/category/category_bloc.dart';
+import 'package:sakupintar/presentation/bloc/category/category_event.dart';
+import 'package:sakupintar/data/repositories/goal_repository.dart';
+import 'package:sakupintar/presentation/bloc/goal/goal_bloc.dart';
+import 'package:sakupintar/presentation/bloc/goal/goal_event.dart';
+import 'package:sakupintar/data/repositories/budget_repository.dart';
+import 'package:sakupintar/presentation/bloc/budget/budget_bloc.dart';
+import 'package:sakupintar/data/repositories/education_repository.dart';
+import 'package:sakupintar/presentation/bloc/education/education_bloc.dart';
 import 'core/theme/theme.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
+  await dotenv.load(fileName: ".env");
 
   runApp(const SakuPintarApp());
 }
@@ -27,6 +40,28 @@ class SakuPintarApp extends StatelessWidget {
         BlocProvider(
           create: (context) =>
               AuthBloc(AuthRepository())..add(const CheckAuthStatus()),
+        ),
+        BlocProvider(
+          create: (context) => TransactionBloc(
+            repository: TransactionRepository(),
+            goalRepository: GoalRepository(),
+          ),
+        ),
+        BlocProvider(
+          create: (context) =>
+              CategoryBloc(repository: CategoryRepository())
+                ..add(LoadCategories()),
+        ),
+        BlocProvider(
+          create: (context) =>
+              GoalBloc(repository: GoalRepository())..add(LoadGoals()),
+        ),
+        BlocProvider(
+          create: (context) => BudgetBloc(repository: BudgetRepository()),
+        ),
+        BlocProvider(
+          create: (context) =>
+              EducationBloc(repository: EducationRepository())..add(LoadEducation()),
         ),
       ],
       child: MaterialApp.router(

@@ -9,6 +9,8 @@ import 'package:sakupintar/presentation/pages/auth/onboarding_page.dart';
 import 'package:sakupintar/presentation/bloc/auth/auth_bloc.dart';
 import 'package:sakupintar/presentation/bloc/auth/auth_state.dart';
 import 'package:sakupintar/presentation/pages/dashboard/dashboard_page.dart';
+import 'package:sakupintar/presentation/pages/transaction/add_transaction_page.dart';
+import 'package:sakupintar/presentation/pages/goal/add_goal_page.dart';
 
 abstract class Routes {
   static const splash = '/';
@@ -31,12 +33,16 @@ class AppRouter {
     redirect: (context, state) {
       final user = FirebaseAuth.instance.currentUser;
       final loc = state.matchedLocation;
-      final isAuthPage = loc == Routes.login || loc == Routes.register || loc == Routes.otp;
+      final isAuthPage =
+          loc == Routes.login || loc == Routes.register || loc == Routes.otp;
+      final isSplash = loc == Routes.splash;
 
-      if (user == null && !isAuthPage && loc != Routes.splash) {
+      if (user == null && !isAuthPage && !isSplash) {
         return Routes.login;
       }
-      if (user != null && isAuthPage) return Routes.dashboard;
+      if (user != null && (isAuthPage || isSplash)) {
+        return Routes.dashboard;
+      }
       return null;
     },
     routes: [
@@ -57,7 +63,11 @@ class AppRouter {
       ),
       GoRoute(
         path: Routes.addTransaction,
-        builder: (_, __) => const _Placeholder('Tambah Transaksi'),
+        builder: (context, state) {
+          final type = state.uri.queryParameters['type'] ?? 'expense';
+          final goalId = state.uri.queryParameters['goalId'];
+          return AddTransactionPage(type: type, goalId: goalId);
+        },
       ),
       GoRoute(
         path: Routes.analytics,
@@ -67,10 +77,7 @@ class AppRouter {
         path: Routes.goals,
         builder: (_, __) => const _Placeholder('Target Keuangan'),
       ),
-      GoRoute(
-        path: Routes.addGoal,
-        builder: (_, __) => const _Placeholder('Tambah Target'),
-      ),
+      GoRoute(path: Routes.addGoal, builder: (_, __) => const AddGoalPage()),
       GoRoute(
         path: Routes.education,
         builder: (_, __) => const _Placeholder('Edukasi'),
@@ -105,22 +112,98 @@ class _DashboardGuard extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocConsumer<AuthBloc, AuthState>(
       listener: (context, state) {
-        if (!state.isLoading && state.user != null) {
-          final u = state.user!;
-          if (u.nickname == null || u.school == null || u.primaryGoal == null) {
-            context.go(Routes.onboarding);
+        if (!state.isLoading) {
+          if (state.user == null) {
+            context.go(Routes.login);
+          } else {
+            final u = state.user!;
+            if (u.nickname == null || u.school == null || u.primaryGoal == null) {
+              context.go(Routes.onboarding);
+            }
           }
         }
       },
       builder: (context, state) {
-        if (state.isLoading) {
-          return const Scaffold(body: Center(child: CircularProgressIndicator()));
-        }
-        if (state.user != null) {
-          final u = state.user!;
-          if (u.nickname == null || u.school == null || u.primaryGoal == null) {
-            return const Scaffold(body: Center(child: CircularProgressIndicator())); // wait for redirect
-          }
+        if (state.isLoading ||
+            state.user == null ||
+            (state.user != null &&
+                (state.user!.nickname == null ||
+                    state.user!.school == null ||
+                    state.user!.primaryGoal == null))) {
+          // Skeleton loading replacing CircularProgressIndicator
+          return Scaffold(
+            backgroundColor: Colors.white,
+            body: SafeArea(
+              child: Padding(
+                padding: const EdgeInsets.all(24.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Row(
+                          children: [
+                            Container(
+                              width: 48,
+                              height: 48,
+                              decoration: BoxDecoration(
+                                color: Colors.grey[200],
+                                shape: BoxShape.circle,
+                              ),
+                            ),
+                            const SizedBox(width: 16),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Container(
+                                  width: 100,
+                                  height: 12,
+                                  color: Colors.grey[200],
+                                ),
+                                const SizedBox(height: 8),
+                                Container(
+                                  width: 140,
+                                  height: 20,
+                                  color: Colors.grey[200],
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                        Container(
+                          width: 48,
+                          height: 48,
+                          decoration: BoxDecoration(
+                            color: Colors.grey[200],
+                            shape: BoxShape.circle,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 32),
+                    Container(
+                      width: double.infinity,
+                      height: 160,
+                      decoration: BoxDecoration(
+                        color: Colors.grey[200],
+                        borderRadius: BorderRadius.circular(24),
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+                    Container(
+                      width: double.infinity,
+                      height: 120,
+                      decoration: BoxDecoration(
+                        color: Colors.grey[200],
+                        borderRadius: BorderRadius.circular(24),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          );
         }
         return child;
       },

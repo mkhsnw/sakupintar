@@ -13,6 +13,7 @@ abstract class UserModel with _$UserModel {
     String? school,
     String? primaryGoal, // "Menabung" | "Mengatur Jajan" | "Investasi"
     String? userType, // "Hemat" | "Impulsif" | "Konsisten"
+    String? photoUrl,
     @JsonKey(fromJson: _timestampFromJson, toJson: _timestampToJson)
     Timestamp? createdAt,
     String? fcmToken,
