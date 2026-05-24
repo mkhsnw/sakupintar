@@ -20,7 +20,7 @@ class GoalRepository {
         .snapshots()
         .map((snapshot) {
       return snapshot.docs.map((doc) {
-        final data = doc.data();
+        final data = Map<String, dynamic>.from(doc.data());
         data['id'] = doc.id;
         return GoalModel.fromJson(data);
       }).toList();
@@ -45,6 +45,8 @@ class GoalRepository {
       await docRef.set(goal.toJson());
     } on FirebaseException catch (e) {
       throw Exception('Gagal menyimpan target: ${e.message}');
+    } catch (e) {
+      throw Exception('Terjadi kesalahan saat menyimpan target: $e');
     }
   }
 
@@ -61,6 +63,8 @@ class GoalRepository {
           .update(goal.toJson());
     } on FirebaseException catch (e) {
       throw Exception('Gagal memperbarui target: ${e.message}');
+    } catch (e) {
+      throw Exception('Terjadi kesalahan saat memperbarui target: $e');
     }
   }
 
@@ -79,6 +83,8 @@ class GoalRepository {
           .update({'isActive': true});
     } on FirebaseException catch (e) {
       throw Exception('Gagal mengubah status target: ${e.message}');
+    } catch (e) {
+      throw Exception('Terjadi kesalahan saat mengubah status target: $e');
     }
   }
 
@@ -97,6 +103,63 @@ class GoalRepository {
           });
     } on FirebaseException catch (e) {
       throw Exception('Gagal menambahkan tabungan: ${e.message}');
+    } catch (e) {
+      throw Exception('Terjadi kesalahan saat menambahkan tabungan: $e');
+    }
+  }
+
+  Future<void> markGoalCompleted(String goalId) async {
+    final uid = currentUserId;
+    if (uid == null) throw Exception('User not logged in');
+
+    try {
+      final batch = _firestore.batch();
+      final goalRef = _firestore
+          .collection('users')
+          .doc(uid)
+          .collection('goals')
+          .doc(goalId);
+
+      batch.update(goalRef, {
+        'isCompleted': true,
+        'isActive': false,
+      });
+
+      // Find next active goal
+      final otherGoals = await _firestore
+          .collection('users')
+          .doc(uid)
+          .collection('goals')
+          .where('isActive', isEqualTo: false)
+          .get();
+
+      String? nextActiveGoalId;
+      for (var doc in otherGoals.docs) {
+        if (doc.id != goalId) {
+          final data = doc.data();
+          if (data['isCompleted'] != true) {
+            nextActiveGoalId = doc.id;
+            break;
+          }
+        }
+      }
+
+      if (nextActiveGoalId != null) {
+        final nextGoalRef = _firestore
+            .collection('users')
+            .doc(uid)
+            .collection('goals')
+            .doc(nextActiveGoalId);
+        batch.update(nextGoalRef, {
+          'isActive': true,
+        });
+      }
+
+      await batch.commit();
+    } on FirebaseException catch (e) {
+      throw Exception('Gagal menandai target selesai: ${e.message}');
+    } catch (e) {
+      throw Exception('Terjadi kesalahan saat menandai target selesai: $e');
     }
   }
 

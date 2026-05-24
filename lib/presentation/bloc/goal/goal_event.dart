@@ -46,3 +46,21 @@ class AddSavedAmount extends GoalEvent {
   @override
   List<Object?> get props => [goalId, amount];
 }
+
+class MarkGoalCompleted extends GoalEvent {
+  final String goalId;
+
+  const MarkGoalCompleted(this.goalId);
+
+  @override
+  List<Object?> get props => [goalId];
+}
+
+class GoalError extends GoalEvent {
+  final String error;
+
+  const GoalError(this.error);
+
+  @override
+  List<Object?> get props => [error];
+}

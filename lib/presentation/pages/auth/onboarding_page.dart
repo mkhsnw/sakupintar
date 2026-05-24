@@ -9,6 +9,7 @@ import 'package:sakupintar/core/theme/theme.dart';
 import 'package:sakupintar/presentation/bloc/auth/auth_bloc.dart';
 import 'package:sakupintar/presentation/bloc/auth/auth_event.dart';
 import 'package:sakupintar/presentation/bloc/auth/auth_state.dart';
+import 'package:sakupintar/presentation/bloc/theme/theme_bloc.dart';
 import 'package:sakupintar/presentation/widgets/common/app_button.dart';
 
 class OnboardingPage extends StatefulWidget {
@@ -102,7 +103,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
                     ? FileImage(_profileImage!)
                     : null,
                 child: _profileImage == null
-                    ? const Icon(
+                    ? Icon(
                         Icons.person_rounded,
                         size: 48,
                         color: AppColors.primary,
@@ -120,7 +121,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
                   shape: BoxShape.circle,
                   border: Border.all(color: AppColors.surface, width: 2),
                 ),
-                child: const Icon(
+                child: Icon(
                   Icons.camera_alt_rounded,
                   color: AppColors.surface,
                   size: 18,
@@ -150,7 +151,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
             fontWeight: FontWeight.w600,
           ),
         ),
-        const SizedBox(height: AppDimensions.sm),
+        SizedBox(height: AppDimensions.sm),
         TextFormField(
           controller: controller,
           style: AppTypography.bodyMedium.copyWith(
@@ -208,7 +209,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
         });
       },
       child: AnimatedContainer(
-        duration: const Duration(milliseconds: 300),
+        duration: Duration(milliseconds: 300),
         width: isLarge ? double.infinity : null,
         padding: const EdgeInsets.all(AppDimensions.md),
         decoration: BoxDecoration(
@@ -223,7 +224,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
                   BoxShadow(
                     color: AppColors.primary.withOpacity(0.3),
                     blurRadius: 12,
-                    offset: const Offset(0, 4),
+                    offset: Offset(0, 4),
                   ),
                 ]
               : [],
@@ -265,7 +266,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
                               : Colors.transparent,
                         ),
                         child: isSelected
-                            ? const Icon(
+                            ? Icon(
                                 Icons.check,
                                 size: 16,
                                 color: AppColors.primary,
@@ -274,7 +275,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 16),
+                  SizedBox(height: 16),
                   Text(
                     title,
                     style: AppTypography.titleLarge.copyWith(
@@ -303,7 +304,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
                       size: 24,
                     ),
                   ),
-                  const SizedBox(height: 12),
+                  SizedBox(height: 12),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -323,11 +324,11 @@ class _OnboardingPageState extends State<OnboardingPage> {
                           margin: const EdgeInsets.only(left: 4),
                           width: 20,
                           height: 20,
-                          decoration: const BoxDecoration(
+                          decoration: BoxDecoration(
                             shape: BoxShape.circle,
                             color: AppColors.surface,
                           ),
-                          child: const Icon(
+                          child: Icon(
                             Icons.check,
                             size: 14,
                             color: AppColors.primary,
@@ -337,6 +338,102 @@ class _OnboardingPageState extends State<OnboardingPage> {
                   ),
                 ],
               ),
+      ),
+    );
+  }
+
+  Widget _buildThemeSelector() {
+    return BlocBuilder<ThemeBloc, ThemeState>(
+      builder: (context, state) {
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Tema Aplikasi',
+              style: AppTypography.labelLarge.copyWith(
+                color: AppColors.neutralDark,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            const SizedBox(height: 2),
+            Text(
+              'Pilih warna kesukaanmu',
+              style: AppTypography.bodySmall.copyWith(
+                color: AppColors.textSecondary,
+              ),
+            ),
+            const SizedBox(height: AppDimensions.md),
+            Row(
+              children: [
+                Expanded(
+                  child: _buildThemeOption(
+                    title: 'Biru',
+                    isSelected: state.themeType == ThemeType.blue,
+                    color: const Color(0xFF2979FF),
+                    onTap: () {
+                      context.read<ThemeBloc>().add(
+                        const ChangeTheme(ThemeType.blue),
+                      );
+                    },
+                  ),
+                ),
+                const SizedBox(width: AppDimensions.sm),
+                Expanded(
+                  child: _buildThemeOption(
+                    title: 'Pink',
+                    isSelected: state.themeType == ThemeType.pink,
+                    color: const Color(0xFFFF4081),
+                    onTap: () {
+                      context.read<ThemeBloc>().add(
+                        const ChangeTheme(ThemeType.pink),
+                      );
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _buildThemeOption({
+    required String title,
+    required bool isSelected,
+    required Color color,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: Duration(milliseconds: 300),
+        padding: const EdgeInsets.all(AppDimensions.md),
+        decoration: BoxDecoration(
+          color: isSelected ? color.withOpacity(0.1) : AppColors.surface,
+          borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
+          border: Border.all(
+            color: isSelected ? color : AppColors.cardBorder,
+            width: 1.5,
+          ),
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 24,
+              height: 24,
+              decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+            ),
+            const SizedBox(width: AppDimensions.sm),
+            Text(
+              title,
+              style: AppTypography.labelLarge.copyWith(
+                color: isSelected ? color : AppColors.textPrimary,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -364,11 +461,14 @@ class _OnboardingPageState extends State<OnboardingPage> {
           elevation: 0,
           centerTitle: true,
           leading: IconButton(
-            icon: const Icon(Icons.arrow_back, color: AppColors.primary),
-            onPressed: () => context.pop(),
+            icon: Icon(Icons.arrow_back, color: AppColors.primary),
+            onPressed: () {
+              context.read<AuthBloc>().add(const LogoutRequested());
+              context.go('/login');
+            },
           ),
           title: Text(
-            'Set Up Profile',
+            'Lengkapi Profil',
             style: AppTypography.headlineMedium.copyWith(
               color: AppColors.textPrimary,
               fontWeight: FontWeight.w700,
@@ -407,7 +507,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
                     Container(
                       width: 64,
                       height: 64,
-                      decoration: const BoxDecoration(
+                      decoration: BoxDecoration(
                         shape: BoxShape.circle,
                         color: AppColors.background,
                       ),
@@ -422,7 +522,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
                               'assets/image/arsa.png',
                               fit: BoxFit.cover,
                               errorBuilder: (context, error, stackTrace) {
-                                return const Icon(
+                                return Icon(
                                   Icons.smart_toy,
                                   color: AppColors.surface,
                                   size: 32,
@@ -433,11 +533,11 @@ class _OnboardingPageState extends State<OnboardingPage> {
                         ),
                       ),
                     ),
-                    const SizedBox(width: AppDimensions.md),
+                    SizedBox(width: AppDimensions.md),
                     Expanded(
                       child: Container(
                         padding: const EdgeInsets.all(AppDimensions.md),
-                        decoration: const BoxDecoration(
+                        decoration: BoxDecoration(
                           color: AppColors.surface,
                           borderRadius: BorderRadius.only(
                             topRight: Radius.circular(AppDimensions.radiusLg),
@@ -454,7 +554,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
                               height: 1.5,
                             ),
                             children: [
-                              const TextSpan(text: 'Halo! Aku '),
+                              TextSpan(text: 'Halo! Aku '),
                               TextSpan(
                                 text: 'Arsa',
                                 style: AppTypography.bodyMedium.copyWith(
@@ -462,7 +562,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
                                   fontWeight: FontWeight.w700,
                                 ),
                               ),
-                              const TextSpan(
+                              TextSpan(
                                 text:
                                     '. Bantu aku kenal kamu lebih dekat supaya SakuPintar bisa bantu capai mimpimu!',
                               ),
@@ -473,11 +573,11 @@ class _OnboardingPageState extends State<OnboardingPage> {
                     ),
                   ],
                 ),
-                const SizedBox(height: AppDimensions.xl),
+                SizedBox(height: AppDimensions.xl),
 
                 // Profile Photo
                 _buildProfilePhotoPicker(),
-                const SizedBox(height: AppDimensions.lg),
+                SizedBox(height: AppDimensions.lg),
 
                 // Inputs
                 _buildTextField(
@@ -486,7 +586,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
                   suffixIcon: Icons.person,
                   controller: _nameController,
                 ),
-                const SizedBox(height: AppDimensions.lg),
+                SizedBox(height: AppDimensions.lg),
 
                 _buildTextField(
                   label: 'Asal Sekolah',
@@ -495,7 +595,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
                   controller: _schoolController,
                   isSearchIcon: true,
                 ),
-                const SizedBox(height: AppDimensions.xl),
+                SizedBox(height: AppDimensions.xl),
 
                 // Target Utama
                 Text(
@@ -505,14 +605,14 @@ class _OnboardingPageState extends State<OnboardingPage> {
                     fontWeight: FontWeight.w600,
                   ),
                 ),
-                const SizedBox(height: 2),
+                SizedBox(height: 2),
                 Text(
                   'Pilih satu yang paling penting buatmu',
                   style: AppTypography.bodySmall.copyWith(
                     color: AppColors.textSecondary,
                   ),
                 ),
-                const SizedBox(height: AppDimensions.md),
+                SizedBox(height: AppDimensions.md),
 
                 // Options
                 _buildGoalOption(
@@ -547,6 +647,8 @@ class _OnboardingPageState extends State<OnboardingPage> {
                     ),
                   ],
                 ),
+                const SizedBox(height: AppDimensions.xl),
+                _buildThemeSelector(),
                 const SizedBox(height: AppDimensions.xxl),
 
                 BlocBuilder<AuthBloc, AuthState>(

@@ -79,7 +79,7 @@ class _AddGoalPageState extends State<AddGoalPage> {
             ),
           ),
           leading: IconButton(
-            icon: const Icon(Icons.arrow_back_ios_new_rounded, color: AppColors.textPrimary),
+            icon: Icon(Icons.arrow_back_ios_new_rounded, color: AppColors.textPrimary),
             onPressed: () => context.pop(),
           ),
         ),
@@ -101,17 +101,17 @@ class _AddGoalPageState extends State<AddGoalPage> {
                       fillColor: AppColors.surface,
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
-                        borderSide: const BorderSide(color: AppColors.cardBorder),
+                        borderSide: BorderSide(color: AppColors.cardBorder),
                       ),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
-                        borderSide: const BorderSide(color: AppColors.cardBorder),
+                        borderSide: BorderSide(color: AppColors.cardBorder),
                       ),
                     ),
                     validator: (value) => value == null || value.isEmpty ? 'Judul target tidak boleh kosong' : null,
                   ),
                 ),
-                const SizedBox(height: AppDimensions.xl),
+                SizedBox(height: AppDimensions.xl),
                 _buildInputSection(
                   title: 'Berapa total dana yang dibutuhkan?',
                   child: TextFormField(
@@ -126,11 +126,11 @@ class _AddGoalPageState extends State<AddGoalPage> {
                       prefixStyle: AppTypography.bodyLarge.copyWith(color: AppColors.textPrimary),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
-                        borderSide: const BorderSide(color: AppColors.cardBorder),
+                        borderSide: BorderSide(color: AppColors.cardBorder),
                       ),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
-                        borderSide: const BorderSide(color: AppColors.cardBorder),
+                        borderSide: BorderSide(color: AppColors.cardBorder),
                       ),
                     ),
                     validator: (value) => value == null || value.isEmpty ? 'Nominal tidak boleh kosong' : null,
@@ -163,7 +163,7 @@ class _AddGoalPageState extends State<AddGoalPage> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
-                            _selectedDate == null ? 'Pilih Tanggal' : DateFormat('dd MMMM yyyy').format(_selectedDate!),
+                            _selectedDate == null ? 'Pilih Tanggal' : DateFormat('dd MMMM yyyy', 'id_ID').format(_selectedDate!),
                             style: AppTypography.bodyLarge.copyWith(
                               color: _selectedDate == null ? AppColors.textDisabled : AppColors.textPrimary,
                             ),
@@ -189,7 +189,7 @@ class _AddGoalPageState extends State<AddGoalPage> {
                           ),
                         ),
                         child: state.isLoading
-                            ? const SizedBox(
+                            ? SizedBox(
                                 height: 24,
                                 width: 24,
                                 child: CircularProgressIndicator(color: AppColors.surface, strokeWidth: 2),

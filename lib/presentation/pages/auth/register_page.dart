@@ -38,7 +38,7 @@ class _RegisterPageState extends State<RegisterPage> {
 
     if (email.isEmpty || password.isEmpty || confirmPassword.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
+        SnackBar(
           content: Text('Semua field harus diisi'),
           backgroundColor: AppColors.expense,
         ),
@@ -48,7 +48,7 @@ class _RegisterPageState extends State<RegisterPage> {
 
     if (password != confirmPassword) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
+        SnackBar(
           content: Text('Password tidak cocok'),
           backgroundColor: AppColors.expense,
         ),
@@ -89,7 +89,7 @@ class _RegisterPageState extends State<RegisterPage> {
         body: Container(
           width: double.infinity,
           height: double.infinity,
-          decoration: const BoxDecoration(
+          decoration: BoxDecoration(
             gradient: LinearGradient(
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
@@ -120,8 +120,8 @@ class _RegisterPageState extends State<RegisterPage> {
                           .animate(onPlay: (c) => c.repeat(reverse: true))
                           .scale(
                             duration: 4.seconds,
-                            begin: const Offset(0.9, 0.9),
-                            end: const Offset(1.1, 1.1),
+                            begin: Offset(0.9, 0.9),
+                            end: Offset(1.1, 1.1),
                           ),
                 ),
               ),
@@ -159,12 +159,12 @@ class _RegisterPageState extends State<RegisterPage> {
                         children: [
                           IconButton(
                             onPressed: () => context.pop(),
-                            icon: const Icon(
+                            icon: Icon(
                               Icons.arrow_back_ios_new_rounded,
                               color: AppColors.textPrimary,
                             ),
                           ).animate().fadeIn(delay: 200.ms),
-                          const SizedBox(width: 8),
+                          SizedBox(width: 8),
                           Text(
                             'Buat Akun',
                             style: AppTypography.displayMedium.copyWith(
@@ -176,7 +176,7 @@ class _RegisterPageState extends State<RegisterPage> {
                           ).animate().fadeIn(delay: 300.ms).slideX(begin: 0.1),
                         ],
                       ),
-                      const SizedBox(height: 12),
+                      SizedBox(height: 12),
                       Text(
                         'Daftar sekarang untuk memulai perjalanan finansialmu bersama ARSA.',
                         style: AppTypography.bodyMedium.copyWith(
@@ -185,7 +185,7 @@ class _RegisterPageState extends State<RegisterPage> {
                         ),
                       ).animate().fadeIn(delay: 400.ms).slideX(begin: 0.1),
 
-                      const SizedBox(height: 40),
+                      SizedBox(height: 40),
 
                       // Glassmorphism Card for Form
                       ClipRRect(

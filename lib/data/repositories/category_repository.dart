@@ -1,7 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:sakupintar/data/models/category/category_model.dart';
-import 'package:sakupintar/core/theme/theme.dart';
 
 class CategoryRepository {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -12,22 +11,22 @@ class CategoryRepository {
   // Default Categories
   List<CategoryModel> get defaultCategories => [
         CategoryModel(
-          id: 'default_jajan',
+          id: 'jajan',
           name: 'Jajan',
           icon: 'restaurant_rounded',
           color: '0xFFFF5252',
           createdAt: Timestamp.now(),
         ),
         CategoryModel(
-          id: 'default_nabung',
+          id: 'nabung',
           name: 'Nabung',
           icon: 'savings_rounded',
           color: '0xFF00BFA5',
           createdAt: Timestamp.now(),
         ),
         CategoryModel(
-          id: 'default_entertainment',
-          name: 'Entertainment',
+          id: 'hiburan',
+          name: 'Hiburan',
           icon: 'sports_esports_rounded',
           color: '0xFF651FFF',
           createdAt: Timestamp.now(),
@@ -48,7 +47,7 @@ class CategoryRepository {
     } on FirebaseException catch (e) {
       throw Exception('Gagal menyimpan kategori: ${e.message}');
     } catch (e) {
-      throw Exception('Terjadi kesalahan: $e');
+      throw Exception('Terjadi kesalahan saat menyimpan kategori: $e');
     }
   }
 
@@ -63,7 +62,7 @@ class CategoryRepository {
         .snapshots()
         .map((snapshot) {
       final customCategories = snapshot.docs.map((doc) {
-        final data = doc.data();
+        final data = Map<String, dynamic>.from(doc.data());
         data['id'] = doc.id;
         return CategoryModel.fromJson(data);
       }).toList();
@@ -84,7 +83,7 @@ class CategoryRepository {
           .get();
 
       final customCategories = snapshot.docs.map((doc) {
-        final data = doc.data();
+        final data = Map<String, dynamic>.from(doc.data());
         data['id'] = doc.id;
         return CategoryModel.fromJson(data);
       }).toList();
@@ -93,7 +92,7 @@ class CategoryRepository {
     } on FirebaseException catch (e) {
       throw Exception('Gagal mengambil kategori: ${e.message}');
     } catch (e) {
-      throw Exception('Terjadi kesalahan: $e');
+      throw Exception('Terjadi kesalahan saat mengambil kategori: $e');
     }
   }
 }

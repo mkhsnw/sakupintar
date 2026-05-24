@@ -19,6 +19,7 @@ class TransactionBloc extends Bloc<TransactionEvent, TransactionState> {
     on<LoadTransactions>(_onLoadTransactions);
     on<TransactionsUpdated>(_onTransactionsUpdated);
     on<AddTransaction>(_onAddTransaction);
+    on<TransactionError>(_onTransactionError);
   }
 
   Future<void> _onLoadTransactions(
@@ -33,8 +34,8 @@ class TransactionBloc extends Bloc<TransactionEvent, TransactionState> {
           .listen(
             (transactions) => add(TransactionsUpdated(transactions)),
             onError: (error) {
-              add(TransactionsUpdated(const []));
-              // BLoC won't let you emit from a listener directly after the handler finishes without add()
+              // Dispatch error event instead of returning empty list
+              add(TransactionError(error.toString()));
             },
           );
     } catch (e) {
@@ -67,13 +68,20 @@ class TransactionBloc extends Bloc<TransactionEvent, TransactionState> {
       await _repository.addTransaction(transaction);
       
       if (event.goalId != null && _goalRepository != null) {
-        await _goalRepository!.addSavedAmount(event.goalId!, transaction.amount);
+        await _goalRepository.addSavedAmount(event.goalId!, transaction.amount);
       }
       
       emit(state.copyWith(isLoading: false, isSuccess: true));
     } catch (e) {
       emit(state.copyWith(isLoading: false, error: e.toString()));
     }
+  }
+
+  void _onTransactionError(
+    TransactionError event,
+    Emitter<TransactionState> emit,
+  ) {
+    emit(state.copyWith(isLoading: false, error: event.error));
   }
 
   @override

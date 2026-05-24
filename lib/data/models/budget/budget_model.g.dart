@@ -22,7 +22,7 @@ Map<String, dynamic> _$BudgetModelToJson(_BudgetModel instance) =>
       'monthKey': instance.monthKey,
       'income': instance.income,
       'createdAt': _timestampToJson(instance.createdAt),
-      'allocations': instance.allocations,
+      'allocations': instance.allocations.map((e) => e.toJson()).toList(),
     };
 
 _AllocationModel _$AllocationModelFromJson(Map<String, dynamic> json) =>

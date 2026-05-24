@@ -33,7 +33,7 @@ class AppButton extends StatelessWidget {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(AppDimensions.buttonRadius),
             side: isSecondary
-                ? const BorderSide(color: AppColors.primary)
+                ? BorderSide(color: AppColors.primary)
                 : BorderSide.none,
           ),
         ),

@@ -37,3 +37,12 @@ class TransactionsUpdated extends TransactionEvent {
   @override
   List<Object?> get props => [transactions];
 }
+
+class TransactionError extends TransactionEvent {
+  final String error;
+
+  const TransactionError(this.error);
+
+  @override
+  List<Object?> get props => [error];
+}

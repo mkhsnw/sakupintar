@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:sakupintar/core/utils/image_helper.dart';
 import 'package:sakupintar/core/theme/theme.dart';
@@ -33,7 +34,7 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
   DateTime _transactionTime = DateTime.now();
   final TextEditingController _amountController = TextEditingController();
   final TextEditingController _noteController = TextEditingController();
-  String _selectedCategory = 'default_jajan'; // For expense
+  String _selectedCategory = 'jajan'; // For expense
   String? _selectedGoalId;
   File? _receiptFile;
 
@@ -41,7 +42,7 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
   void initState() {
     super.initState();
     if (widget.goalId != null) {
-      _selectedCategory = 'default_nabung';
+      _selectedCategory = 'nabung';
       _selectedGoalId = widget.goalId;
     }
   }
@@ -64,7 +65,9 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
             context: context,
             barrierDismissible: false,
             builder: (dialogContext) => Dialog(
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(24),
+              ),
               child: Padding(
                 padding: const EdgeInsets.all(32.0),
                 child: Column(
@@ -72,30 +75,40 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
                   children: [
                     Container(
                       padding: const EdgeInsets.all(16),
-                      decoration: const BoxDecoration(
+                      decoration: BoxDecoration(
                         color: AppColors.secondaryContainer,
                         shape: BoxShape.circle,
                       ),
-                      child: const Icon(Icons.check_circle_rounded, color: AppColors.secondary, size: 64),
+                      child: Icon(
+                        Icons.check_circle_rounded,
+                        color: AppColors.secondary,
+                        size: 64,
+                      ),
                     ),
-                    const SizedBox(height: 24),
+                    SizedBox(height: 24),
                     Text(
                       'Berhasil!',
-                      style: AppTypography.titleLarge.copyWith(fontWeight: FontWeight.w800),
+                      style: AppTypography.titleLarge.copyWith(
+                        fontWeight: FontWeight.w800,
+                      ),
                     ),
-                    const SizedBox(height: 8),
+                    SizedBox(height: 8),
                     Text(
                       'Transaksi berhasil ditambahkan.',
                       textAlign: TextAlign.center,
-                      style: AppTypography.bodyMedium.copyWith(color: AppColors.textSecondary),
+                      style: AppTypography.bodyMedium.copyWith(
+                        color: AppColors.textSecondary,
+                      ),
                     ),
-                    const SizedBox(height: 24),
+                    SizedBox(height: 24),
                     SizedBox(
                       width: double.infinity,
                       child: ElevatedButton(
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AppColors.primary,
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(100)),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(100),
+                          ),
                           padding: const EdgeInsets.symmetric(vertical: 16),
                         ),
                         onPressed: () {
@@ -104,7 +117,10 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
                         },
                         child: Text(
                           'Tutup',
-                          style: AppTypography.titleMedium.copyWith(color: Colors.white, fontWeight: FontWeight.bold),
+                          style: AppTypography.titleMedium.copyWith(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
                     ),
@@ -114,9 +130,9 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
             ),
           );
         } else if (state.error != null) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(state.error!)),
-          );
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text(state.error!)));
         }
       },
       child: Scaffold(
@@ -127,7 +143,7 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
           leading: IconButton(
             icon: Container(
               padding: const EdgeInsets.all(8),
-              decoration: const BoxDecoration(
+              decoration: BoxDecoration(
                 color: AppColors.primaryContainer,
                 shape: BoxShape.circle,
               ),
@@ -140,8 +156,10 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
             onPressed: () => context.pop(),
           ),
           title: Text(
-            isExpense ? 'New Expense' : 'New Income',
-            style: AppTypography.titleLarge.copyWith(fontWeight: FontWeight.w700),
+            isExpense ? 'Pengeluaran Baru' : 'Pemasukan Baru',
+            style: AppTypography.titleLarge.copyWith(
+              fontWeight: FontWeight.w700,
+            ),
           ),
           centerTitle: true,
         ),
@@ -156,7 +174,7 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
                 if (isExpense) ...[
                   _buildCategorySection(),
                   const SizedBox(height: AppDimensions.xl),
-                  if (_selectedCategory == 'default_nabung') ...[
+                  if (_selectedCategory == 'nabung') ...[
                     _buildGoalSelectionSection(),
                     const SizedBox(height: AppDimensions.xl),
                   ],
@@ -172,7 +190,11 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
           ),
         ),
         floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-        floatingActionButton: _buildSaveButton(),
+        floatingActionButton: BlocBuilder<TransactionBloc, TransactionState>(
+          builder: (context, state) {
+            return _buildSaveButton(isLoading: state.isLoading);
+          },
+        ),
       ),
     );
   }
@@ -182,14 +204,14 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
       child: Column(
         children: [
           Text(
-            isExpense ? 'AMOUNT SPENT' : 'AMOUNT RECEIVED',
+            isExpense ? 'TOTAL PENGELUARAN' : 'TOTAL PEMASUKAN',
             style: AppTypography.labelMedium.copyWith(
               color: AppColors.textSecondary,
               letterSpacing: 1.2,
               fontWeight: FontWeight.w600,
             ),
           ),
-          const SizedBox(height: AppDimensions.md),
+          SizedBox(height: AppDimensions.md),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.end,
@@ -201,20 +223,21 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
                   fontWeight: FontWeight.w800,
                 ),
               ),
-              const SizedBox(width: AppDimensions.sm),
+              SizedBox(width: AppDimensions.sm),
               IntrinsicWidth(
                 child: TextField(
                   controller: _amountController,
                   keyboardType: TextInputType.number,
+                  textInputAction: TextInputAction.done,
+                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                   style: AppTypography.displayMedium.copyWith(
-                    color: AppColors
-                        .primaryContainer, // Like the 0 in reference, but we use a better color
+                    color: AppColors.textPrimary,
                     fontWeight: FontWeight.w800,
                   ),
                   decoration: InputDecoration(
                     hintText: '0',
                     hintStyle: AppTypography.displayMedium.copyWith(
-                      color: AppColors.primaryContainer,
+                      color: AppColors.textSecondary,
                       fontWeight: FontWeight.w300,
                     ),
                     border: InputBorder.none,
@@ -236,7 +259,7 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Category',
+          'Kategori',
           style: AppTypography.titleLarge.copyWith(fontWeight: FontWeight.w700),
         ),
         const SizedBox(height: AppDimensions.md),
@@ -254,11 +277,14 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
                     } catch (_) {
                       iconColor = AppColors.primary;
                     }
-                    
+
                     IconData iconData = Icons.category_rounded;
-                    if (cat.icon == 'restaurant_rounded') iconData = Icons.restaurant_rounded;
-                    else if (cat.icon == 'savings_rounded') iconData = Icons.savings_rounded;
-                    else if (cat.icon == 'sports_esports_rounded') iconData = Icons.sports_esports_rounded;
+                    if (cat.icon == 'restaurant_rounded') {
+                      iconData = Icons.restaurant_rounded;
+                    } else if (cat.icon == 'savings_rounded')
+                      iconData = Icons.savings_rounded;
+                    else if (cat.icon == 'sports_esports_rounded')
+                      iconData = Icons.sports_esports_rounded;
 
                     return Padding(
                       padding: const EdgeInsets.only(right: AppDimensions.md),
@@ -270,10 +296,10 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
                         backgroundColor: iconColor.withOpacity(0.1),
                       ),
                     );
-                  }).toList(),
+                  }),
                   _buildCategoryChip(
                     id: 'custom_add',
-                    title: 'Custom',
+                    title: 'Lainnya',
                     icon: Icons.add_rounded,
                     iconColor: AppColors.neutral,
                     backgroundColor: AppColors.neutralContainer,
@@ -303,7 +329,7 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
         } else {
           setState(() {
             _selectedCategory = id;
-            if (id != 'default_nabung') {
+            if (id != 'nabung') {
               _selectedGoalId = null;
             }
           });
@@ -326,7 +352,7 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
                   BoxShadow(
                     color: AppColors.primary.withOpacity(0.1),
                     blurRadius: 8,
-                    offset: const Offset(0, 4),
+                    offset: Offset(0, 4),
                   ),
                 ]
               : [],
@@ -343,7 +369,7 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
               ),
               child: Icon(icon, color: iconColor, size: 24),
             ),
-            const Spacer(),
+            Spacer(),
             Text(
               title,
               style: AppTypography.labelSmall.copyWith(
@@ -366,7 +392,7 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
         if (state.goals.isEmpty) {
           return const SizedBox.shrink();
         }
-        
+
         _selectedGoalId ??= state.activeGoal?.id ?? state.goals.first.id;
 
         return Column(
@@ -374,9 +400,11 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
           children: [
             Text(
               'Target Tabungan',
-              style: AppTypography.titleLarge.copyWith(fontWeight: FontWeight.w700),
+              style: AppTypography.titleLarge.copyWith(
+                fontWeight: FontWeight.w700,
+              ),
             ),
-            const SizedBox(height: AppDimensions.md),
+            SizedBox(height: AppDimensions.md),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: AppDimensions.md),
               decoration: BoxDecoration(
@@ -394,7 +422,9 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
                       value: goal.id,
                       child: Text(
                         goal.title,
-                        style: AppTypography.bodyMedium.copyWith(fontWeight: FontWeight.w600),
+                        style: AppTypography.bodyMedium.copyWith(
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
                     );
                   }).toList(),
@@ -453,11 +483,11 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
           children: [
             Container(
               padding: const EdgeInsets.all(8),
-              decoration: const BoxDecoration(
+              decoration: BoxDecoration(
                 color: AppColors.primaryContainer,
                 shape: BoxShape.circle,
               ),
-              child: const Icon(
+              child: Icon(
                 Icons.access_time_rounded,
                 color: AppColors.primary,
                 size: 20,
@@ -469,7 +499,7 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'TRANSACTION TIME',
+                    'WAKTU TRANSAKSI',
                     style: AppTypography.labelSmall.copyWith(
                       color: AppColors.textSecondary,
                       fontWeight: FontWeight.w600,
@@ -477,7 +507,10 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    DateFormat('MM/dd/yyyy, hh:mm a').format(_transactionTime),
+                    DateFormat(
+                      'dd/MM/yyyy, HH:mm',
+                      'id_ID',
+                    ).format(_transactionTime),
                     style: AppTypography.bodyMedium.copyWith(
                       fontWeight: FontWeight.w600,
                     ),
@@ -521,7 +554,7 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'ADD NOTE (OPTIONAL)',
+                  'CATATAN (OPSIONAL)',
                   style: AppTypography.labelSmall.copyWith(
                     color: AppColors.textSecondary,
                     fontWeight: FontWeight.w600,
@@ -531,7 +564,7 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
                   controller: _noteController,
                   style: AppTypography.bodyMedium,
                   decoration: InputDecoration(
-                    hintText: 'What was this for?',
+                    hintText: 'Buat apa nih?',
                     hintStyle: AppTypography.bodyMedium.copyWith(
                       color: AppColors.neutral,
                     ),
@@ -556,12 +589,17 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              'Receipt Photo',
-              style: AppTypography.titleLarge.copyWith(fontWeight: FontWeight.w700),
+              'Foto Struk',
+              style: AppTypography.titleLarge.copyWith(
+                fontWeight: FontWeight.w700,
+              ),
             ),
             if (_receiptFile != null)
               IconButton(
-                icon: const Icon(Icons.delete_outline_rounded, color: AppColors.expense),
+                icon: Icon(
+                  Icons.delete_outline_rounded,
+                  color: AppColors.expense,
+                ),
                 onPressed: () => setState(() => _receiptFile = null),
               ),
           ],
@@ -577,7 +615,9 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
           borderRadius: BorderRadius.circular(AppDimensions.radiusXl),
           child: Container(
             width: double.infinity,
-            padding: EdgeInsets.symmetric(vertical: _receiptFile != null ? 0 : AppDimensions.xxl),
+            padding: EdgeInsets.symmetric(
+              vertical: _receiptFile != null ? 0 : AppDimensions.xxl,
+            ),
             decoration: BoxDecoration(
               color: AppColors.primaryContainer.withOpacity(0.5),
               borderRadius: BorderRadius.circular(AppDimensions.radiusXl),
@@ -589,18 +629,23 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
             ),
             clipBehavior: Clip.antiAlias,
             child: _receiptFile != null
-                ? Image.file(_receiptFile!, fit: BoxFit.cover, height: 200, width: double.infinity)
+                ? Image.file(
+                    _receiptFile!,
+                    fit: BoxFit.cover,
+                    height: 200,
+                    width: double.infinity,
+                  )
                 : Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const Icon(
+                      Icon(
                         Icons.camera_alt_rounded,
                         color: AppColors.primary,
                         size: 40,
                       ),
-                      const SizedBox(height: AppDimensions.md),
+                      SizedBox(height: AppDimensions.md),
                       Text(
-                        'Upload receipt',
+                        'Upload Struk',
                         style: AppTypography.titleMedium.copyWith(
                           color: AppColors.primary,
                           fontWeight: FontWeight.w700,
@@ -608,7 +653,7 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        'Maximum size 5MB',
+                        'Maksimal 5MB',
                         style: AppTypography.labelSmall.copyWith(
                           color: AppColors.textSecondary,
                         ),
@@ -621,7 +666,7 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
     );
   }
 
-  Widget _buildSaveButton() {
+  Widget _buildSaveButton({bool isLoading = false}) {
     return Padding(
       padding: const EdgeInsets.symmetric(
         horizontal: AppDimensions.pageHorizontal,
@@ -630,7 +675,13 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
         width: double.infinity,
         height: 60,
         decoration: BoxDecoration(
-          gradient: AppColors.primaryGradient,
+          gradient: isLoading
+              ? LinearGradient(
+                  colors: [AppColors.neutral, AppColors.neutralLight],
+                  begin: Alignment.centerLeft,
+                  end: Alignment.centerRight,
+                )
+              : AppColors.primaryGradient,
           borderRadius: BorderRadius.circular(AppDimensions.radiusFull),
           boxShadow: [
             BoxShadow(
@@ -644,73 +695,107 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
           color: Colors.transparent,
           child: InkWell(
             borderRadius: BorderRadius.circular(AppDimensions.radiusFull),
-            onTap: () {
-              final amountText = _amountController.text.replaceAll(RegExp(r'[^0-9]'), '');
-              if (amountText.isEmpty) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Please enter an amount')),
-                );
-                return;
-              }
-              final amount = double.parse(amountText);
-              
-              if (isExpense) {
-                final state = context.read<TransactionBloc>().state;
-                double totalIncome = 0;
-                double totalExpense = 0;
-                for (final tx in state.transactions) {
-                  if (tx.type == 'income') totalIncome += tx.amount;
-                  if (tx.type == 'expense') totalExpense += tx.amount;
-                }
-                
-                if (totalExpense + amount > totalIncome) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Pengeluaran tidak boleh melebihi sisa pemasukan bulan ini!')),
-                  );
-                  return;
-                }
-              }
+            onTap: isLoading
+                ? null
+                : () {
+                    final amountText = _amountController.text.replaceAll(
+                      RegExp(r'[^0-9]'),
+                      '',
+                    );
+                    if (amountText.isEmpty) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Masukin nominal dulu ya')),
+                      );
+                      return;
+                    }
+                    final amount = double.parse(amountText);
 
-              final transaction = TransactionModel(
-                id: DateTime.now().millisecondsSinceEpoch.toString(),
-                type: widget.type,
-                amount: amount,
-                categoryId: isExpense ? _selectedCategory : 'income_default',
-                note: _noteController.text,
-                date: Timestamp.fromDate(_transactionTime),
-                monthKey: Formatters.getMonthKey(_transactionTime),
-              );
+                    if (isExpense) {
+                      final state = context.read<TransactionBloc>().state;
+                      double totalIncome = 0;
+                      double totalExpense = 0;
+                      for (final tx in state.transactions) {
+                        if (tx.type == 'income') totalIncome += tx.amount;
+                        if (tx.type == 'expense') totalExpense += tx.amount;
+                      }
 
-              context.read<TransactionBloc>().add(AddTransaction(
-                transaction,
-                receiptFile: _receiptFile,
-                goalId: _selectedCategory == 'default_nabung' ? _selectedGoalId : null,
-              ));
-            },
+                      if (totalExpense + amount > totalIncome) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text(
+                              'Pengeluaran tidak boleh melebihi sisa pemasukan bulan ini!',
+                            ),
+                          ),
+                        );
+                        return;
+                      }
+                    }
+
+                    final transaction = TransactionModel(
+                      id: DateTime.now().millisecondsSinceEpoch.toString(),
+                      type: widget.type,
+                      amount: amount,
+                      categoryId: isExpense ? _selectedCategory : 'income',
+                      note: _noteController.text,
+                      date: Timestamp.fromDate(_transactionTime),
+                      monthKey: Formatters.getMonthKey(_transactionTime),
+                    );
+
+                    context.read<TransactionBloc>().add(
+                      AddTransaction(
+                        transaction,
+                        receiptFile: _receiptFile,
+                        goalId: _selectedCategory == 'nabung'
+                            ? _selectedGoalId
+                            : null,
+                      ),
+                    );
+                  },
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(4),
-                  decoration: const BoxDecoration(
-                    color: AppColors.surface,
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(
-                    Icons.check_rounded,
-                    color: AppColors.primary,
-                    size: 16,
-                  ),
-                ),
-                const SizedBox(width: AppDimensions.md),
-                Text(
-                  'Save Transaction',
-                  style: AppTypography.titleMedium.copyWith(
-                    color: AppColors.surface,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-              ],
+              children: isLoading
+                  ? [
+                      SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2.5,
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            AppColors.surface,
+                          ),
+                        ),
+                      ),
+                      SizedBox(width: AppDimensions.md),
+                      Text(
+                        'Menyimpan...',
+                        style: AppTypography.titleMedium.copyWith(
+                          color: AppColors.surface,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ]
+                  : [
+                      Container(
+                        padding: const EdgeInsets.all(4),
+                        decoration: BoxDecoration(
+                          color: AppColors.surface,
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(
+                          Icons.check_rounded,
+                          color: AppColors.primary,
+                          size: 16,
+                        ),
+                      ),
+                      SizedBox(width: AppDimensions.md),
+                      Text(
+                        'Simpan Transaksi',
+                        style: AppTypography.titleMedium.copyWith(
+                          color: AppColors.surface,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ],
             ),
           ),
         ),
@@ -726,28 +811,31 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
         return AlertDialog(
           title: Text(
             'Tambah Kategori Custom',
-            style: AppTypography.titleMedium.copyWith(fontWeight: FontWeight.w700),
+            style: AppTypography.titleMedium.copyWith(
+              fontWeight: FontWeight.w700,
+            ),
           ),
           content: TextField(
             controller: nameController,
-            decoration: const InputDecoration(
-              hintText: 'Nama Kategori',
-            ),
+            decoration: const InputDecoration(hintText: 'Nama Kategori'),
+            textCapitalization: TextCapitalization.words,
           ),
           actions: [
             TextButton(
-              onPressed: () => Navigator.pop(dialogContext),
+              onPressed: () {
+                Navigator.pop(dialogContext);
+              },
               child: const Text('Batal'),
             ),
             ElevatedButton(
               onPressed: () {
-                if (nameController.text.isNotEmpty) {
+                if (nameController.text.trim().isNotEmpty) {
                   final cat = CategoryModel(
                     id: 'custom_${DateTime.now().millisecondsSinceEpoch}',
-                    name: nameController.text,
+                    name: nameController.text.trim(),
                     icon: 'category_rounded',
                     color: '0xFF2962FF',
-                    createdAt: Timestamp.now() as dynamic,
+                    createdAt: Timestamp.now(),
                   );
                   context.read<CategoryBloc>().add(AddCategory(cat));
                   Navigator.pop(dialogContext);

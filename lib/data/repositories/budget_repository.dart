@@ -37,6 +37,8 @@ class BudgetRepository {
           .set(budget.toJson());
     } on FirebaseException catch (e) {
       throw Exception('Gagal menyimpan budget: ${e.message}');
+    } catch (e) {
+      throw Exception('Terjadi kesalahan saat menyimpan budget: $e');
     }
   }
 }

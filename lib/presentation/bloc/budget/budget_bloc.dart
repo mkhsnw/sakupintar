@@ -14,6 +14,7 @@ class BudgetBloc extends Bloc<BudgetEvent, BudgetState> {
     on<LoadBudget>(_onLoadBudget);
     on<BudgetUpdated>(_onBudgetUpdated);
     on<SaveBudget>(_onSaveBudget);
+    on<BudgetError>(_onBudgetError);
   }
 
   Future<void> _onLoadBudget(
@@ -26,7 +27,8 @@ class BudgetBloc extends Bloc<BudgetEvent, BudgetState> {
       _budgetSubscription = _repository.streamBudget(event.monthKey).listen(
         (budget) => add(BudgetUpdated(budget)),
         onError: (error) {
-          emit(state.copyWith(isLoading: false, error: error.toString()));
+          // Don't emit here - use add() to dispatch error event instead
+          add(BudgetError(error.toString()));
         },
       );
     } catch (e) {
@@ -56,6 +58,13 @@ class BudgetBloc extends Bloc<BudgetEvent, BudgetState> {
     } catch (e) {
       emit(state.copyWith(isLoading: false, error: e.toString()));
     }
+  }
+
+  void _onBudgetError(
+    BudgetError event,
+    Emitter<BudgetState> emit,
+  ) {
+    emit(state.copyWith(isLoading: false, error: event.error));
   }
 
   @override

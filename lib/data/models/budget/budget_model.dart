@@ -11,7 +11,9 @@ abstract class BudgetModel with _$BudgetModel {
     required double income,
     @JsonKey(fromJson: _timestampFromJson, toJson: _timestampToJson)
     required Timestamp createdAt,
-    @Default([]) List<AllocationModel> allocations,
+    @Default([])
+    @JsonKey(fromJson: _allocationsFromJson, toJson: _allocationsToJson)
+    List<AllocationModel> allocations,
   }) = _BudgetModel;
 
   factory BudgetModel.fromJson(Map<String, dynamic> json) =>
@@ -34,3 +36,12 @@ abstract class AllocationModel with _$AllocationModel {
 Timestamp _timestampFromJson(dynamic value) =>
     value is Timestamp ? value : Timestamp.now();
 dynamic _timestampToJson(Timestamp time) => time;
+
+List<AllocationModel> _allocationsFromJson(List<dynamic>? json) =>
+    json
+        ?.map((e) => AllocationModel.fromJson(e as Map<String, dynamic>))
+        .toList() ??
+    [];
+
+List<Map<String, dynamic>> _allocationsToJson(List<AllocationModel> list) =>
+    list.map((e) => e.toJson()).toList();

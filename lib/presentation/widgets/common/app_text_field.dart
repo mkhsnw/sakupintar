@@ -48,7 +48,7 @@ class _AppTextFieldState extends State<AppTextField> {
             color: AppColors.textPrimary,
           ),
         ),
-        const SizedBox(height: 8),
+        SizedBox(height: 8),
         TextFormField(
           controller: widget.controller,
           obscureText: _obscureText,
@@ -86,25 +86,25 @@ class _AppTextFieldState extends State<AppTextField> {
               borderRadius: BorderRadius.circular(
                 AppDimensions.cardRadius,
               ), // 16
-              borderSide: const BorderSide(color: AppColors.cardBorder),
+              borderSide: BorderSide(color: AppColors.cardBorder),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(AppDimensions.cardRadius),
-              borderSide: const BorderSide(
+              borderSide: BorderSide(
                 color: AppColors.primary,
                 width: 1.5,
               ),
             ),
             errorBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(AppDimensions.cardRadius),
-              borderSide: const BorderSide(
+              borderSide: BorderSide(
                 color: AppColors.expense,
                 width: 1.0,
               ),
             ),
             focusedErrorBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(AppDimensions.cardRadius),
-              borderSide: const BorderSide(
+              borderSide: BorderSide(
                 color: AppColors.expense,
                 width: 1.5,
               ),

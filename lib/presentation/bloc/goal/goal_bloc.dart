@@ -16,6 +16,8 @@ class GoalBloc extends Bloc<GoalEvent, GoalState> {
     on<AddGoal>(_onAddGoal);
     on<SetActiveGoal>(_onSetActiveGoal);
     on<AddSavedAmount>(_onAddSavedAmount);
+    on<MarkGoalCompleted>(_onMarkGoalCompleted);
+    on<GoalError>(_onGoalError);
   }
 
   Future<void> _onLoadGoals(
@@ -28,7 +30,8 @@ class GoalBloc extends Bloc<GoalEvent, GoalState> {
       _goalsSubscription = _repository.streamGoals().listen(
         (goals) => add(GoalsUpdated(goals)),
         onError: (error) {
-          add(const GoalsUpdated([]));
+          // Dispatch error event instead of returning empty list
+          add(GoalError(error.toString()));
         },
       );
     } catch (e) {
@@ -79,6 +82,24 @@ class GoalBloc extends Bloc<GoalEvent, GoalState> {
     } catch (e) {
       emit(state.copyWith(error: e.toString()));
     }
+  }
+
+  Future<void> _onMarkGoalCompleted(
+    MarkGoalCompleted event,
+    Emitter<GoalState> emit,
+  ) async {
+    try {
+      await _repository.markGoalCompleted(event.goalId);
+    } catch (e) {
+      emit(state.copyWith(error: e.toString()));
+    }
+  }
+
+  void _onGoalError(
+    GoalError event,
+    Emitter<GoalState> emit,
+  ) {
+    emit(state.copyWith(isLoading: false, error: event.error));
   }
 
   @override

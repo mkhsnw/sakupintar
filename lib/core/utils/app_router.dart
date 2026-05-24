@@ -10,7 +10,9 @@ import 'package:sakupintar/presentation/bloc/auth/auth_bloc.dart';
 import 'package:sakupintar/presentation/bloc/auth/auth_state.dart';
 import 'package:sakupintar/presentation/pages/dashboard/dashboard_page.dart';
 import 'package:sakupintar/presentation/pages/transaction/add_transaction_page.dart';
+import 'package:sakupintar/presentation/pages/transaction/transaction_list_page.dart';
 import 'package:sakupintar/presentation/pages/goal/add_goal_page.dart';
+import 'package:sakupintar/presentation/pages/profile/profile_page.dart';
 
 abstract class Routes {
   static const splash = '/';
@@ -20,6 +22,7 @@ abstract class Routes {
   static const onboarding = '/onboarding';
   static const dashboard = '/dashboard';
   static const addTransaction = '/transaction/add';
+  static const transactionList = '/transaction/list';
   static const analytics = '/analytics';
   static const goals = '/goals';
   static const addGoal = '/goals/add';
@@ -83,8 +86,15 @@ class AppRouter {
         builder: (_, __) => const _Placeholder('Edukasi'),
       ),
       GoRoute(
+        path: Routes.transactionList,
+        builder: (context, state) {
+          final monthKey = state.uri.queryParameters['monthKey'] ?? '';
+          return TransactionListPage(monthKey: monthKey);
+        },
+      ),
+      GoRoute(
         path: Routes.profile,
-        builder: (_, __) => const _Placeholder('Profil'),
+        builder: (_, __) => const ProfilePage(),
       ),
     ],
     errorBuilder: (_, state) =>

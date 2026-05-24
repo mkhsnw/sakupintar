@@ -1,9 +1,13 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:sakupintar/core/theme/theme.dart';
 import 'package:sakupintar/core/utils/app_router.dart';
+import 'package:sakupintar/presentation/bloc/theme/theme_bloc.dart';
+import 'package:sakupintar/presentation/bloc/theme/theme_event.dart';
+import 'package:sakupintar/presentation/bloc/theme/theme_state.dart';
 
 class SplashPage extends StatefulWidget {
   const SplashPage({super.key});
@@ -13,6 +17,111 @@ class SplashPage extends StatefulWidget {
 }
 
 class _SplashPageState extends State<SplashPage> {
+  Widget _buildThemeSelector(BuildContext context) {
+    return BlocBuilder<ThemeBloc, ThemeState>(
+      builder: (context, themeState) {
+        final isPink = themeState.themeType == ThemeType.pink;
+
+        return Column(
+          children: [
+            Text(
+              'PILIH TEMA',
+              style: AppTypography.labelSmall.copyWith(
+                color: AppColors.textSecondary,
+                fontWeight: FontWeight.w700,
+                letterSpacing: 1.5,
+              ),
+            ),
+            const SizedBox(height: 12),
+            Container(
+              padding: const EdgeInsets.all(4),
+              decoration: BoxDecoration(
+                color: AppColors.surface.withOpacity(0.5),
+                borderRadius: BorderRadius.circular(AppDimensions.radiusFull),
+                border: Border.all(
+                  color: AppColors.cardBorder.withOpacity(0.5),
+                ),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Blue Theme Option
+                  _buildThemeOption(
+                    context: context,
+                    label: 'Biru',
+                    gradient: const LinearGradient(
+                      colors: [Color(0xFF2979FF), Color(0xFF64B5F6)],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                    isSelected: !isPink,
+                    onTap: () {
+                      context.read<ThemeBloc>().add(const ChangeTheme(ThemeType.blue));
+                    },
+                  ),
+                  const SizedBox(width: 4),
+                  // Pink Theme Option
+                  _buildThemeOption(
+                    context: context,
+                    label: 'Pink',
+                    gradient: const LinearGradient(
+                      colors: [Color(0xFFFF69B4), Color(0xFFFF99CC)],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                    isSelected: isPink,
+                    onTap: () {
+                      context.read<ThemeBloc>().add(const ChangeTheme(ThemeType.pink));
+                    },
+                  ),
+                ],
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _buildThemeOption({
+    required BuildContext context,
+    required String label,
+    required Gradient gradient,
+    required bool isSelected,
+    required VoidCallback onTap,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(AppDimensions.radiusFull),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+        decoration: BoxDecoration(
+          gradient: isSelected ? gradient : null,
+          color: isSelected ? null : Colors.transparent,
+          borderRadius: BorderRadius.circular(AppDimensions.radiusFull),
+          boxShadow: isSelected
+              ? [
+                  BoxShadow(
+                    color: (gradient as LinearGradient).colors.first.withOpacity(0.4),
+                    blurRadius: 8,
+                    offset: const Offset(0, 4),
+                  ),
+                ]
+              : null,
+        ),
+        child: Text(
+          label,
+          style: AppTypography.labelMedium.copyWith(
+            color: isSelected ? Colors.white : AppColors.textSecondary,
+            fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -20,7 +129,7 @@ class _SplashPageState extends State<SplashPage> {
       body: Container(
         width: double.infinity,
         height: double.infinity,
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
@@ -58,7 +167,7 @@ class _SplashPageState extends State<SplashPage> {
                 padding: const EdgeInsets.symmetric(horizontal: 30),
                 child: Column(
                   children: [
-                    const Spacer(flex: 2),
+                    Spacer(flex: 2),
 
                     // Logo SakuPintar & Icon Wallet Center (Glassmorphism)
                     Center(
@@ -91,7 +200,7 @@ class _SplashPageState extends State<SplashPage> {
                       ),
                     ),
 
-                    const SizedBox(height: 40),
+                    SizedBox(height: 40),
 
                     // Title & Description
                     Text(
@@ -104,7 +213,7 @@ class _SplashPageState extends State<SplashPage> {
                       ),
                     ).animate().fadeIn(duration: 600.ms).slideY(begin: 0.2),
 
-                    const SizedBox(height: 12),
+                    SizedBox(height: 12),
 
                     Text(
                       'Kelola Uang Sakumu dengan Cerdas Bersama Arsa',
@@ -116,7 +225,15 @@ class _SplashPageState extends State<SplashPage> {
                       ),
                     ).animate().fadeIn(delay: 300.ms, duration: 600.ms),
 
-                    const Spacer(flex: 3),
+                    Spacer(flex: 2),
+
+                    // Theme Selector
+                    _buildThemeSelector(context)
+                        .animate()
+                        .fadeIn(delay: 400.ms, duration: 600.ms)
+                        .slideY(begin: 0.2),
+
+                    SizedBox(height: 24),
 
                     // Glassmorphism Button "Get Started"
                     ClipRRect(
@@ -132,12 +249,7 @@ class _SplashPageState extends State<SplashPage> {
                                 borderRadius: BorderRadius.circular(
                                   AppDimensions.radiusFull,
                                 ),
-                                gradient: const LinearGradient(
-                                  colors: [
-                                    Color(0xFF2962FF), // Primary Anda
-                                    Color(0xFF64B5F6), // Variasi Biru Terang
-                                  ],
-                                ),
+                                gradient: AppColors.primaryGradient,
                                 boxShadow: [
                                   BoxShadow(
                                     color: AppColors.primary.withOpacity(0.3),
@@ -157,8 +269,8 @@ class _SplashPageState extends State<SplashPage> {
                                     ),
                                   ),
                                 ),
-                                child: const Text(
-                                  'Get Started',
+                                  child: const Text(
+                                  'Mulai Sekarang',
                                   style: TextStyle(
                                     color: Colors.white,
                                     fontSize: 18,

@@ -69,6 +69,7 @@ class CategoryBloc extends Bloc<CategoryEvent, CategoryState> {
     }
   }
 
+  @override
   Future<void> close() {
     _subscription?.cancel();
     return super.close();

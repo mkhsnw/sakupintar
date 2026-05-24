@@ -34,3 +34,12 @@ class SaveBudget extends BudgetEvent {
   @override
   List<Object?> get props => [budget];
 }
+
+class BudgetError extends BudgetEvent {
+  final String error;
+
+  const BudgetError(this.error);
+
+  @override
+  List<Object?> get props => [error];
+}

@@ -1,4 +1,3 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -33,7 +32,7 @@ class _LoginPageState extends State<LoginPage> {
     final password = _passwordController.text.trim();
     if (email.isEmpty || password.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
+        SnackBar(
           content: Text('Email dan password tidak boleh kosong'),
           backgroundColor: AppColors.expense,
         ),
@@ -182,12 +181,12 @@ class _LoginPageState extends State<LoginPage> {
                 BoxShadow(
                   color: AppColors.arsaPrimary.withOpacity(0.1),
                   blurRadius: 20,
-                  offset: const Offset(0, 8),
+                  offset: Offset(0, 8),
                 ),
               ],
               border: Border.all(color: AppColors.arsaPrimary.withOpacity(0.1)),
             ),
-            child: const Text(
+            child: Text(
               "Mulai perjalanan\nfinansialmu hari ini!",
               style: TextStyle(
                 fontSize: 11,
@@ -281,7 +280,7 @@ class _LoginPageState extends State<LoginPage> {
     return Row(
       children: [
         Expanded(child: Divider(color: AppColors.cardBorder, thickness: 1)),
-        const Padding(
+        Padding(
           padding: EdgeInsets.symmetric(horizontal: 16),
           child: Text(
             'Atau masuk dengan',
@@ -299,22 +298,22 @@ class _LoginPageState extends State<LoginPage> {
         return OutlinedButton(
           onPressed: state.isLoading ? null : _onGoogleSignIn,
           style: OutlinedButton.styleFrom(
-            minimumSize: const Size(double.infinity, 56),
-            side: const BorderSide(color: AppColors.cardBorder),
+            minimumSize: Size(double.infinity, 56),
+            side: BorderSide(color: AppColors.cardBorder),
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
             backgroundColor: AppColors.surface,
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(
+              Icon(
                 Icons.g_mobiledata_rounded,
                 size: 32,
                 color: AppColors.primary,
               ),
               const SizedBox(width: 8),
               const Text(
-                'Sign in with Google',
+                'Masuk dengan Google',
                 style: TextStyle(
                   color: AppColors.textPrimary,
                   fontWeight: FontWeight.bold,
@@ -331,13 +330,13 @@ class _LoginPageState extends State<LoginPage> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        const Text(
+        Text(
           'Belum Punya Akun? ',
           style: TextStyle(color: AppColors.textSecondary),
         ),
         GestureDetector(
           onTap: () => context.push(Routes.register),
-          child: const Text(
+          child: Text(
             'Daftar sekarang',
             style: TextStyle(
               color: AppColors.secondary,
