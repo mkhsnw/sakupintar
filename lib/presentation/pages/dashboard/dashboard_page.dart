@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:sakupintar/core/theme/theme.dart';
+import 'package:sakupintar/core/utils/app_router.dart';
 import 'package:sakupintar/presentation/bloc/auth/auth_bloc.dart';
 
 import 'package:sakupintar/presentation/bloc/auth/auth_state.dart';
@@ -1135,71 +1136,76 @@ class _DashboardPageState extends State<DashboardPage> {
       catColor = AppColors.neutral;
     }
 
-    return Container(
-      padding: const EdgeInsets.all(AppDimensions.md),
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
-        border: Border.all(color: AppColors.cardBorder),
-      ),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(AppDimensions.sm),
-            decoration: BoxDecoration(
-              color: catColor.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(AppDimensions.radiusSm),
+    return GestureDetector(
+      onTap: () {
+        context.push(Routes.transactionDetail, extra: tx);
+      },
+      child: Container(
+        padding: const EdgeInsets.all(AppDimensions.md),
+        decoration: BoxDecoration(
+          color: AppColors.surface,
+          borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
+          border: Border.all(color: AppColors.cardBorder),
+        ),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(AppDimensions.sm),
+              decoration: BoxDecoration(
+                color: catColor.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(AppDimensions.radiusSm),
+              ),
+              child: Icon(
+                isExpense
+                    ? Icons.trending_down_rounded
+                    : Icons.trending_up_rounded,
+                color: catColor,
+                size: AppDimensions.iconSm,
+              ),
             ),
-            child: Icon(
-              isExpense
-                  ? Icons.trending_down_rounded
-                  : Icons.trending_up_rounded,
-              color: catColor,
-              size: AppDimensions.iconSm,
+            const SizedBox(width: AppDimensions.md),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    category.name,
+                    style: AppTypography.titleMedium.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  if (tx.note != null && tx.note!.isNotEmpty)
+                    Text(
+                      tx.note!,
+                      style: AppTypography.bodySmall.copyWith(
+                        color: AppColors.textSecondary,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                ],
+              ),
             ),
-          ),
-          const SizedBox(width: AppDimensions.md),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 Text(
-                  category.name,
+                  '${isExpense ? '-' : '+'}${Formatters.formatCurrency(tx.amount)}',
                   style: AppTypography.titleMedium.copyWith(
-                    fontWeight: FontWeight.w600,
+                    color: isExpense ? AppColors.expense : AppColors.secondary,
+                    fontWeight: FontWeight.w700,
                   ),
                 ),
-                if (tx.note != null && tx.note!.isNotEmpty)
-                  Text(
-                    tx.note!,
-                    style: AppTypography.bodySmall.copyWith(
-                      color: AppColors.textSecondary,
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
+                Text(
+                  DateFormat('dd MMM, HH:mm', 'id_ID').format(tx.date.toDate()),
+                  style: AppTypography.labelSmall.copyWith(
+                    color: AppColors.textDisabled,
                   ),
+                ),
               ],
             ),
-          ),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Text(
-                '${isExpense ? '-' : '+'}${Formatters.formatCurrency(tx.amount)}',
-                style: AppTypography.titleMedium.copyWith(
-                  color: isExpense ? AppColors.expense : AppColors.secondary,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-              Text(
-                DateFormat('dd MMM, HH:mm', 'id_ID').format(tx.date.toDate()),
-                style: AppTypography.labelSmall.copyWith(
-                  color: AppColors.textDisabled,
-                ),
-              ),
-            ],
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -1613,21 +1619,35 @@ class _DashboardPageState extends State<DashboardPage> {
                     fontWeight: FontWeight.w700,
                   ),
                 ),
-                TextButton.icon(
-                  onPressed: _isCreatingBudget
-                      ? null
-                      : () => _createBudgetWithAI(budget.income),
-                  icon: _isCreatingBudget
-                      ? SizedBox(
-                          width: 16,
-                          height: 16,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        )
-                      : Icon(Icons.refresh_rounded, size: 18),
-                  label: Text('Sesuaikan Ulang'),
-                  style: TextButton.styleFrom(
-                    foregroundColor: AppColors.primary,
-                  ),
+                Row(
+                  children: [
+                    IconButton(
+                      onPressed: () => _showCustomAllocationSheet(budget),
+                      icon: Icon(Icons.edit_rounded, size: 20),
+                      color: AppColors.primary,
+                      tooltip: 'Edit Manual',
+                      padding: EdgeInsets.zero,
+                      constraints: const BoxConstraints(),
+                    ),
+                    const SizedBox(width: AppDimensions.sm),
+                    TextButton.icon(
+                      onPressed: _isCreatingBudget
+                          ? null
+                          : () => _createBudgetWithAI(budget.income),
+                      icon: _isCreatingBudget
+                          ? SizedBox(
+                              width: 16,
+                              height: 16,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            )
+                          : Icon(Icons.refresh_rounded, size: 18),
+                      label: Text('Sesuaikan'),
+                      style: TextButton.styleFrom(
+                        foregroundColor: AppColors.primary,
+                        padding: const EdgeInsets.symmetric(horizontal: 8),
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
@@ -1982,6 +2002,189 @@ class _DashboardPageState extends State<DashboardPage> {
           ],
         ),
       ),
+    );
+  }
+
+  void _showCustomAllocationSheet(BudgetModel budget) {
+    if (budget.income <= 0) return;
+
+    List<AllocationModel> editableAllocations = List.from(budget.allocations);
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (sheetContext) {
+        return StatefulBuilder(
+          builder: (context, setStateSheet) {
+            double totalAllocated = 0;
+            for (var alloc in editableAllocations) {
+              totalAllocated += alloc.limitAmount;
+            }
+            double totalPercentage = (totalAllocated / budget.income) * 100;
+
+            return Container(
+              height: MediaQuery.of(context).size.height * 0.85,
+              padding: const EdgeInsets.all(AppDimensions.lg),
+              decoration: BoxDecoration(
+                color: AppColors.background,
+                borderRadius: BorderRadius.vertical(
+                  top: Radius.circular(AppDimensions.radiusXl),
+                ),
+              ),
+              child: Column(
+                children: [
+                  Container(
+                    width: 40,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: AppColors.neutral.withOpacity(0.3),
+                      borderRadius: BorderRadius.circular(
+                        AppDimensions.radiusFull,
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: AppDimensions.lg),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Sesuaikan Alokasi',
+                        style: AppTypography.titleLarge.copyWith(
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                      TextButton(
+                        onPressed: totalPercentage <= 100.1
+                            ? () {
+                                final newBudget = budget.copyWith(
+                                  allocations: editableAllocations,
+                                );
+                                this.context.read<BudgetBloc>().add(
+                                  SaveBudget(newBudget),
+                                );
+                                Navigator.pop(sheetContext);
+                              }
+                            : null,
+                        child: Text('Simpan'),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: AppDimensions.sm),
+                  Container(
+                    padding: EdgeInsets.all(AppDimensions.md),
+                    decoration: BoxDecoration(
+                      color: totalPercentage > 100
+                          ? AppColors.error.withOpacity(0.1)
+                          : AppColors.primaryContainer,
+                      borderRadius: BorderRadius.circular(
+                        AppDimensions.radiusMd,
+                      ),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Total Dialokasikan',
+                          style: AppTypography.bodyMedium,
+                        ),
+                        Text(
+                          '${totalPercentage.toStringAsFixed(1)}%',
+                          style: AppTypography.titleMedium.copyWith(
+                            fontWeight: FontWeight.w700,
+                            color: totalPercentage > 100
+                                ? AppColors.error
+                                : AppColors.primary,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  SizedBox(height: AppDimensions.lg),
+                  Expanded(
+                    child: ListView.builder(
+                      itemCount: editableAllocations.length,
+                      itemBuilder: (context, index) {
+                        final alloc = editableAllocations[index];
+                        final category = this.context
+                            .read<CategoryBloc>()
+                            .state
+                            .categories
+                            .firstWhere(
+                              (c) => c.id == alloc.categoryId,
+                              orElse: () => CategoryModel(
+                                id: alloc.categoryId,
+                                name: 'Lainnya',
+                                icon: 'category',
+                                color: '0xFF9E9E9E',
+                                createdAt: Timestamp.now(),
+                              ),
+                            );
+
+                        double currentPercent =
+                            (alloc.limitAmount / budget.income) * 100;
+
+                        return Container(
+                          margin: EdgeInsets.only(bottom: AppDimensions.md),
+                          padding: EdgeInsets.all(AppDimensions.md),
+                          decoration: BoxDecoration(
+                            color: AppColors.surface,
+                            borderRadius: BorderRadius.circular(
+                              AppDimensions.radiusLg,
+                            ),
+                            border: Border.all(color: AppColors.cardBorder),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    category.name,
+                                    style: AppTypography.titleMedium.copyWith(
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                  Text(
+                                    '${currentPercent.toStringAsFixed(1)}% (Rp ${Formatters.formatCurrency(alloc.limitAmount).replaceAll('Rp ', '')})',
+                                    style: AppTypography.bodyMedium.copyWith(
+                                      color: AppColors.primary,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              Slider(
+                                value: currentPercent,
+                                min: 0,
+                                max: 100,
+                                divisions: 100,
+                                activeColor: AppColors.primary,
+                                inactiveColor: AppColors.primaryContainer,
+                                onChanged: (val) {
+                                  setStateSheet(() {
+                                    double newAmount =
+                                        budget.income * (val / 100);
+                                    editableAllocations[index] = alloc.copyWith(
+                                      limitAmount: newAmount,
+                                      percentage: val,
+                                    );
+                                  });
+                                },
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
     );
   }
 }

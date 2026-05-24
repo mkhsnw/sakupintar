@@ -1,9 +1,11 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:sakupintar/core/theme/theme.dart';
+import 'package:sakupintar/core/utils/app_router.dart';
 import 'package:sakupintar/presentation/bloc/auth/auth_bloc.dart';
 import 'package:sakupintar/presentation/bloc/auth/auth_event.dart';
 import 'package:sakupintar/presentation/bloc/auth/auth_state.dart';
@@ -382,11 +384,27 @@ class _ProfilePageState extends State<ProfilePage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'Informasi Profil',
-            style: AppTypography.titleLarge.copyWith(
-              fontWeight: FontWeight.w700,
-            ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Informasi Profil',
+                style: AppTypography.titleLarge.copyWith(
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+              TextButton.icon(
+                onPressed: () => context.push(Routes.editProfile),
+                icon: const Icon(Icons.edit_rounded, size: 16),
+                label: const Text('Edit'),
+                style: TextButton.styleFrom(
+                  foregroundColor: AppColors.primary,
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 0),
+                  minimumSize: Size.zero,
+                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                ),
+              ),
+            ],
           ),
           SizedBox(height: AppDimensions.lg),
           _buildInfoRow(
@@ -405,16 +423,6 @@ class _ProfilePageState extends State<ProfilePage> {
             value: primaryGoal,
             color: AppColors.tertiary,
             bgColor: AppColors.tertiaryContainer,
-          ),
-          SizedBox(height: AppDimensions.md),
-          Divider(color: AppColors.cardBorder, height: 1),
-          SizedBox(height: AppDimensions.md),
-          _buildInfoRow(
-            icon: Icons.person_rounded,
-            label: 'Tipe Pengguna',
-            value: userType,
-            color: AppColors.arsaPrimary,
-            bgColor: AppColors.primaryContainer,
           ),
         ],
       ),

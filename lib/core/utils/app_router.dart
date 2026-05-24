@@ -11,7 +11,11 @@ import 'package:sakupintar/presentation/bloc/auth/auth_state.dart';
 import 'package:sakupintar/presentation/pages/dashboard/dashboard_page.dart';
 import 'package:sakupintar/presentation/pages/transaction/add_transaction_page.dart';
 import 'package:sakupintar/presentation/pages/transaction/transaction_list_page.dart';
+import 'package:sakupintar/presentation/pages/transaction/transaction_detail_page.dart';
 import 'package:sakupintar/presentation/pages/goal/add_goal_page.dart';
+import 'package:sakupintar/presentation/pages/profile/profile_page.dart';
+import 'package:sakupintar/presentation/pages/profile/edit_profile_page.dart';
+import 'package:sakupintar/data/models/transaction/transaction_model.dart';
 import 'package:sakupintar/presentation/pages/profile/profile_page.dart';
 
 abstract class Routes {
@@ -28,6 +32,8 @@ abstract class Routes {
   static const addGoal = '/goals/add';
   static const education = '/education';
   static const profile = '/profile';
+  static const editProfile = '/profile/edit';
+  static const transactionDetail = '/transaction/detail';
 }
 
 class AppRouter {
@@ -95,6 +101,17 @@ class AppRouter {
       GoRoute(
         path: Routes.profile,
         builder: (_, __) => const ProfilePage(),
+      ),
+      GoRoute(
+        path: Routes.editProfile,
+        builder: (_, __) => const EditProfilePage(),
+      ),
+      GoRoute(
+        path: Routes.transactionDetail,
+        builder: (context, state) {
+          final tx = state.extra as TransactionModel;
+          return TransactionDetailPage(transaction: tx);
+        },
       ),
     ],
     errorBuilder: (_, state) =>

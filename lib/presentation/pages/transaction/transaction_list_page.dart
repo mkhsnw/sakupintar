@@ -2,9 +2,11 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:sakupintar/core/theme/theme.dart';
 import 'package:sakupintar/core/utils/formatters.dart';
+import 'package:sakupintar/core/utils/app_router.dart';
 import 'package:sakupintar/data/models/category/category_model.dart';
 import 'package:sakupintar/data/models/transaction/transaction_model.dart';
 import 'package:sakupintar/data/repositories/transaction_repository.dart';
@@ -384,16 +386,20 @@ class _TransactionListPageState extends State<TransactionListPage> {
       catColor = AppColors.neutral;
     }
 
-    return Container(
-      margin: const EdgeInsets.only(bottom: AppDimensions.sm),
-      padding: const EdgeInsets.all(AppDimensions.md),
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
-        border: Border.all(color: AppColors.cardBorder),
-      ),
-      child: Row(
-        children: [
+    return GestureDetector(
+      onTap: () {
+        context.push(Routes.transactionDetail, extra: tx);
+      },
+      child: Container(
+        margin: const EdgeInsets.only(bottom: AppDimensions.sm),
+        padding: const EdgeInsets.all(AppDimensions.md),
+        decoration: BoxDecoration(
+          color: AppColors.surface,
+          borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
+          border: Border.all(color: AppColors.cardBorder),
+        ),
+        child: Row(
+          children: [
           Container(
             padding: const EdgeInsets.all(AppDimensions.sm),
             decoration: BoxDecoration(
@@ -451,8 +457,9 @@ class _TransactionListPageState extends State<TransactionListPage> {
           ),
         ],
       ),
-    );
-  }
+    ),
+  );
+}
 
   Widget _buildLoadingMoreIndicator() {
     return Padding(

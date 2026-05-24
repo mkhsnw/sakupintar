@@ -25,6 +25,7 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
   String _arsaMessage =
       'Lagi ngecek riwayat jajan kamu nih biar bisa ngasih saran terbaik!';
   String _userSegment = 'Menganalisis...';
+  String _segmentExplanation = 'Menganalisis pola pengeluaranmu...';
   String _goalEstimation = 'Sedang menghitung prediksi targetmu...';
 
   @override
@@ -59,6 +60,9 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
               aiResult['insight']?['message'] ??
               'Yuk terus catat transaksi kamu biar ARSA bisa kasih saran.';
           _userSegment = aiResult['insight']?['segment_type'] ?? 'Konsisten';
+          _segmentExplanation =
+              aiResult['insight']?['segment_explanation'] ??
+              'Tipe pengeluaranmu berdasarkan kebiasaan transaksi.';
           _goalEstimation =
               aiResult['insight']?['goal_estimation'] ??
               'Yuk rajin nabung biar cepet capai target!';
@@ -90,7 +94,7 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
               children: [
                 Expanded(
                   child: Text(
-                    'Analitik & Budget',
+                    'Analitik',
                     style: AppTypography.headlineMedium.copyWith(
                       color: AppColors.primary,
                       fontWeight: FontWeight.w800,
@@ -300,7 +304,10 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
                             return Padding(
                               padding: const EdgeInsets.only(top: 8.0),
                               child: Text(
-                                DateFormat('E', 'id_ID').format(date).substring(0, 3),
+                                DateFormat(
+                                  'E',
+                                  'id_ID',
+                                ).format(date).substring(0, 3),
                                 style: AppTypography.labelSmall.copyWith(
                                   color: AppColors.textSecondary,
                                 ),
@@ -322,13 +329,18 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
                     gridData: const FlGridData(show: false),
                     borderData: FlBorderData(show: false),
                     barGroups: List.generate(7, (i) {
-                      final isHighest = weeklySpending[i] == weeklySpending.reduce((a, b) => a > b ? a : b) && weeklySpending[i] > 0;
+                      final isHighest =
+                          weeklySpending[i] ==
+                              weeklySpending.reduce((a, b) => a > b ? a : b) &&
+                          weeklySpending[i] > 0;
                       return BarChartGroupData(
                         x: i,
                         barRods: [
                           BarChartRodData(
                             toY: weeklySpending[i],
-                            color: isHighest ? AppColors.tertiary : AppColors.primary,
+                            color: isHighest
+                                ? AppColors.tertiary
+                                : AppColors.primary,
                             width: 16,
                             borderRadius: BorderRadius.circular(4),
                           ),
@@ -395,6 +407,14 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
                     color: AppColors.primary,
                   ),
                 ),
+                const SizedBox(height: 8),
+                Text(
+                  _segmentExplanation,
+                  style: AppTypography.bodySmall.copyWith(
+                    color: AppColors.textPrimary,
+                    height: 1.4,
+                  ),
+                ),
               ],
             ),
           ),
@@ -402,5 +422,4 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
       ),
     );
   }
-
 }

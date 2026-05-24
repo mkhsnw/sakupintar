@@ -63,3 +63,18 @@ class UpdateProfilePhoto extends AuthEvent {
   @override
   List<Object?> get props => [file];
 }
+
+class UpdateProfileRequested extends AuthEvent {
+  final String nickname;
+  final String school;
+  final String primaryGoal;
+
+  const UpdateProfileRequested({
+    required this.nickname,
+    required this.school,
+    required this.primaryGoal,
+  });
+
+  @override
+  List<Object?> get props => [nickname, school, primaryGoal];
+}

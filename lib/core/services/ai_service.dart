@@ -14,14 +14,16 @@ class AiService {
 
   static bool get _isKeyValid {
     final key = _apiKey;
-    return key.isNotEmpty && 
-           key != 'YOUR_OPENAI_API_KEY_HERE' &&
-           key.startsWith('sk-');
+    return key.isNotEmpty &&
+        key != 'YOUR_OPENAI_API_KEY_HERE' &&
+        key.startsWith('sk-');
   }
 
   static Dio get _dio {
     if (!_isKeyValid) {
-      throw Exception('API Key tidak valid. Pastikan API_KEY di .env sudah diisi dengan benar.');
+      throw Exception(
+        'API Key tidak valid. Pastikan API_KEY di .env sudah diisi dengan benar.',
+      );
     }
     return Dio(
       BaseOptions(
@@ -241,11 +243,16 @@ Aturan komunikasi ARSA:
 
 Nama user: ${user.nickname}
 
-Tipe karakter:
-${user.userType ?? 'Campuran'}
-
 Fokus utama:
 ${user.primaryGoal ?? 'Mengatur Uang'}
+
+Tugas Utama:
+1. Berikan insight dari pola pengeluaran dan pemasukan user.
+2. Berikan 1 saran tindakan (actionable advice) yang spesifik untuk membantu user mencapai fokus utamanya.
+3. Tentukan TIPE PENGELUARAN user HANYA ke salah satu dari 3 kategori berikut:
+   - "Pemboros (Big Spender)": Pengeluaran besar untuk kepuasan sesaat (hiburan, jajan berlebihan), impulsif.
+   - "Si Bijak (The Investor)": Pengeluaran besar tidak masalah asalkan untuk hal bernilai/return (aset, pendidikan, nabung).
+   - "Penghemat (Savers)": Sangat berhati-hati, prioritas menabung tinggi, jarang ada pengeluaran impulsif.
 
 Ringkasan keuangan 7 hari terakhir:
 - Total pengeluaran: Rp ${summary['totalExpense']}
@@ -267,9 +274,10 @@ Format JSON:
 
 {
   "insight": {
-    "title": "Judul singkat",
-    "message": "Pesan utama singkat",
-    "segment_type": "Tipe user",
+    "title": "Judul singkat yang menarik",
+    "message": "Insight dari pola keuangan + 1 saran actionable & spesifik (maks 3 kalimat)",
+    "segment_type": "Pilih salah satu: Pemboros (Big Spender) ATAU Si Bijak (The Investor) ATAU Penghemat (Savers)",
+    "segment_explanation": "1 kalimat penjelasan mengapa user masuk ke kategori tersebut berdasarkan data transaksinya",
     "goal_estimation": "Estimasi target",
     "alerts": [
       {
@@ -497,7 +505,9 @@ Format JSON:
       "insight": {
         "title": "Halo ${user.nickname}!",
         "message": "Aku ARSA! Lagi nyiapin insight keuangan kamu nih ✨",
-        "segment_type": user.userType ?? "Konsisten",
+        "segment_type": "Penghemat (Savers)",
+        "segment_explanation":
+            "Kelihatannya kamu rajin menabung dan cukup berhati-hati dalam pengeluaran.",
         "goal_estimation": "Targetmu masih dihitung, tetap semangat nabung ya!",
         "alerts": [],
       },
@@ -507,12 +517,7 @@ Format JSON:
                 for (var c in categories)
                   c.id: (100 / categories.length).floor(),
               }
-            : {
-                "nabung": 30,
-                "jajan": 40,
-                "hiburan": 20,
-                "lainnya": 10,
-              },
+            : {"nabung": 30, "jajan": 40, "hiburan": 20, "lainnya": 10},
     };
   }
 }
